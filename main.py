@@ -115,6 +115,8 @@ elements.append(PageBreak())
        # ========================
     # SUMÁRIO
     # ========================
+        elements.append(PageBreak())
+
     elements.append(Paragraph("Sumário", styles["Heading2"]))
     elements.append(Spacer(1, 0.5 * cm))
 
@@ -129,7 +131,7 @@ elements.append(PageBreak())
             spaceBefore=6,
         )
     ]
-  
+
     elements.append(toc)
     elements.append(PageBreak())
 
