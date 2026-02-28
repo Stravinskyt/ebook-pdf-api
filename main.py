@@ -129,7 +129,6 @@ elements.append(PageBreak())
             spaceBefore=6,
         )
     ]
-
   
     elements.append(toc)
     elements.append(PageBreak())
