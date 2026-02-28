@@ -112,19 +112,25 @@ elements.append(PageBreak())
     # SUMÁRIO REAL
     # ========================
 
+       # ========================
+    # SUMÁRIO
+    # ========================
+    elements.append(Paragraph("Sumário", styles["Heading2"]))
+    elements.append(Spacer(1, 0.5 * cm))
+
+    toc = TableOfContents()
     toc.levelStyles = [
-    ParagraphStyle(
-        name='TOCHeading1',
-        fontSize=11,
-        textColor=colors.HexColor("#0B1F3A"),
-        leftIndent=14,
-        firstLineIndent=-14,
-        spaceBefore=6,
-    )
-]
+        ParagraphStyle(
+            name="TOCHeading1",
+            fontSize=11,
+            textColor=colors.HexColor("#0B1F3A"),
+            leftIndent=14,
+            firstLineIndent=-14,
+            spaceBefore=6,
         )
     ]
 
+  
     elements.append(toc)
     elements.append(PageBreak())
 
