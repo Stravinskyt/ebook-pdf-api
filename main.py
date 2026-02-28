@@ -74,42 +74,54 @@ def generate_ebook_pdf(payload: EbookRequest, authorization: str = Header(defaul
     # CAPA
     # ========================
 
-    title_style = ParagraphStyle(
-        'TitleStyle',
-        parent=styles['Heading1'],
-        fontSize=28,
-        textColor=colors.HexColor("#1F3C88"),
-        spaceAfter=20,
-    )
+    from reportlab.pdfgen import canvas  # se ainda não tiver
+# ...
 
-    elements.append(Spacer(1, 6 * cm))
-    elements.append(Paragraph(payload.title, title_style))
+PRIMARY = colors.HexColor("#0B1F3A")
+ACCENT  = colors.HexColor("#1F3C88")
+TEXT    = colors.HexColor("#2E2E2E")
+MUTED   = colors.HexColor("#6B7280")
+LINE    = colors.HexColor("#CBD5E1")
 
-    if payload.subtitle:
-        elements.append(Spacer(1, 0.5 * cm))
-        elements.append(Paragraph(payload.subtitle, styles["Normal"]))
+# CAPA (antes do PageBreak)
+elements.append(Spacer(1, 4.5 * cm))
 
-    if payload.author:
-        elements.append(Spacer(1, 2 * cm))
-        elements.append(Paragraph(f"Autor: {payload.author}", styles["Normal"]))
+# faixa visual
+band = Paragraph(
+    f"""
+    <para backColor="{PRIMARY.hexval()}" leftIndent="12" rightIndent="12"
+          spaceBefore="0" spaceAfter="0">
+      <font color="white" size="22"><b>{payload.title}</b></font><br/>
+      <font color="{LINE.hexval()}" size="12">{payload.subtitle or ""}</font>
+    </para>
+    """,
+    ParagraphStyle("CoverBand", parent=styles["Normal"], leading=18)
+)
+elements.append(band)
 
-    elements.append(PageBreak())
+elements.append(Spacer(1, 1.2 * cm))
 
+if payload.author:
+    elements.append(Paragraph(f"<font color='{MUTED.hexval()}' size='11'>Autor: {payload.author}</font>", styles["Normal"]))
+
+elements.append(Spacer(1, 0.6 * cm))
+elements.append(Paragraph(f"<font color='{LINE.hexval()}' size='10'>Versão editorial • PDF profissional</font>", styles["Normal"]))
+
+elements.append(PageBreak())
     # ========================
     # SUMÁRIO REAL
     # ========================
 
-    elements.append(Paragraph("Sumário", styles["Heading2"]))
-    elements.append(Spacer(1, 0.5 * cm))
-
-    toc = TableOfContents()
     toc.levelStyles = [
-        ParagraphStyle(
-            name='TOCHeading1',
-            fontSize=12,
-            leftIndent=20,
-            firstLineIndent=-20,
-            spaceBefore=5
+    ParagraphStyle(
+        name='TOCHeading1',
+        fontSize=11,
+        textColor=colors.HexColor("#0B1F3A"),
+        leftIndent=14,
+        firstLineIndent=-14,
+        spaceBefore=6,
+    )
+]
         )
     ]
 
@@ -158,13 +170,27 @@ def generate_ebook_pdf(payload: EbookRequest, authorization: str = Header(defaul
     # NUMERAÇÃO
     # ========================
 
-    def add_page_number(canvas, doc):
-        page_num = canvas.getPageNumber()
-        text = f"{payload.title} — Página {page_num}"
-        canvas.setFont("Helvetica", 9)
-        canvas.drawRightString(doc.pagesize[0] - 2 * cm, 1.5 * cm, text)
+  def add_header_footer(canvas, doc):
+    w, h = doc.pagesize
+    canvas.saveState()
 
-    doc.build(elements, onLaterPages=add_page_number)
+    # Linha fina no topo
+    canvas.setStrokeColor(colors.HexColor("#CBD5E1"))
+    canvas.setLineWidth(0.6)
+    canvas.line(2.5*cm, h - 2.0*cm, w - 2.5*cm, h - 2.0*cm)
+
+    # Cabeçalho: título curto
+    canvas.setFont("Helvetica", 9)
+    canvas.setFillColor(colors.HexColor("#6B7280"))
+    canvas.drawString(2.5*cm, h - 1.7*cm, (payload.title[:70] + "…") if len(payload.title) > 70 else payload.title)
+
+    # Rodapé: página
+    canvas.setFillColor(colors.HexColor("#6B7280"))
+    canvas.drawRightString(w - 2.5*cm, 1.5*cm, f"Página {canvas.getPageNumber()}")
+
+    canvas.restoreState()
+              # CHAMA A GERAÇÃO DO PDF COM CABEÇALHO/RODAPÉ
+    doc.build(elements, onLaterPages=add_header_footer)
 
     pdf_bytes = buffer.getvalue()
     b64 = base64.b64encode(pdf_bytes).decode("utf-8")
@@ -177,4 +203,3 @@ def generate_ebook_pdf(payload: EbookRequest, authorization: str = Header(defaul
                 "content": b64
             }
         ]
-    }
