@@ -107,6 +107,16 @@ if payload.author:
 elements.append(Spacer(1, 0.6 * cm))
 elements.append(Paragraph(f"<font color='{LINE.hexval()}' size='10'>Versão editorial • PDF profissional</font>", styles["Normal"]))
 
+elements.append(band)
+
+elements.append(Spacer(1, 1.2 * cm))
+
+if payload.author:
+    elements.append(Paragraph(f"<font color='{MUTED.hexval()}' size='11'>Autor: {payload.author}</font>", styles["Normal"]))
+
+elements.append(Spacer(1, 0.6 * cm))
+elements.append(Paragraph(f"<font color='{LINE.hexval()}' size='10'>Versão editorial • PDF profissional</font>", styles["Normal"]))
+
 elements.append(PageBreak())
     # ========================
     # SUMÁRIO REAL
