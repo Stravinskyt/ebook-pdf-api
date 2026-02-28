@@ -5,7 +5,8 @@ from typing import List, Optional
 
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, TableOfContents
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
+from reportlab.platypus.tableofcontents import TableOfContents
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib import colors
 from reportlab.lib.units import cm
