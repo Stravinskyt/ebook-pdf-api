@@ -13,6 +13,7 @@ from reportlab.lib.units import cm
 from reportlab.platypus import Paragraph, Spacer, PageBreak, Frame, PageTemplate
 from reportlab.platypus.tableofcontents import TableOfContents
 from reportlab.platypus.doctemplate import BaseDocTemplate
+from reportlab.platypus import NextPageTemplate
 
 
 app = FastAPI(title="Ebook PDF Generator API", version="4.0.0")
@@ -139,9 +140,31 @@ def generate_ebook_pdf(payload: EbookRequest, authorization: str = Header(defaul
         muted_color=MUTED,
     )
 
-    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="normal")
-    template = PageTemplate(id="main", frames=[frame])
-    doc.addPageTemplates([template])
+    from reportlab.platypus import NextPageTemplate
+
+# Frame principal
+frame = Frame(
+    doc.leftMargin,
+    doc.bottomMargin,
+    doc.width,
+    doc.height,
+    id="normal"
+)
+
+# Template da CAPA (sem header/footer)
+cover_template = PageTemplate(
+    id="cover",
+    frames=[frame]
+)
+
+# Template principal (com header/footer)
+main_template = PageTemplate(
+    id="main",
+    frames=[frame],
+    onPage=add_header_footer
+)
+
+doc.addPageTemplates([cover_template, main_template])
 
     styles = getSampleStyleSheet()
 
@@ -208,7 +231,7 @@ def generate_ebook_pdf(payload: EbookRequest, authorization: str = Header(defaul
     )
 
     # --- Build elements ---
-    elements = []
+    doc.build(elements)
 
     # =========================
     # COVER
@@ -232,7 +255,7 @@ def generate_ebook_pdf(payload: EbookRequest, authorization: str = Header(defaul
 
     elements.append(Spacer(1, 0.6 * cm))
     elements.append(Paragraph(f"<font color='{LINE.hexval()}' size='10'>Versão editorial • PDF profissional</font>", styles["Normal"]))
-
+    elements.append(NextPageTemplate("main"))
     elements.append(PageBreak())
 
     # =========================
