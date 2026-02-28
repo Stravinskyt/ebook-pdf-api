@@ -40,12 +40,12 @@ def get_page_size(size):
 def generate_ebook_pdf(payload: EbookRequest, authorization: str = Header(default="")):
 
     # Autenticação
-    if API_KEY:
-        if not authorization.startswith("Bearer "):
-            raise HTTPException(status_code=401, detail="Missing Bearer token")
-        token = authorization.replace("Bearer ", "").strip()
-        if token != API_KEY:
-            raise HTTPException(status_code=403, detail="Invalid token")
+    # if API_KEY:
+#     if not authorization.startswith("Bearer "):
+#         raise HTTPException(status_code=401, detail="Missing Bearer token")
+#     token = authorization.replace("Bearer ", "").strip()
+#     if token != API_KEY:
+#         raise HTTPException(status_code=403, detail="Invalid token")
 
     buffer = BytesIO()
 
