@@ -11,9 +11,6 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib import colors
 from reportlab.lib.units import cm
 from reportlab.lib.pagesizes import A4, letter
-from reportlab.platypus import ListFlowable, ListItem
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfbase import pdfmetrics
 
 app = FastAPI(title="Ebook PDF Generator API", version="2.0.0")
 
@@ -37,6 +34,7 @@ def get_page_size(size):
 @app.post("/generate-ebook-pdf")
 def generate_ebook_pdf(payload: EbookRequest, authorization: str = Header(default="")):
 
+    # 🔐 Autenticação Bearer
     if API_KEY:
         if not authorization.startswith("Bearer "):
             raise HTTPException(status_code=401, detail="Missing Bearer token")
@@ -45,6 +43,7 @@ def generate_ebook_pdf(payload: EbookRequest, authorization: str = Header(defaul
             raise HTTPException(status_code=403, detail="Invalid token")
 
     buffer = BytesIO()
+
     doc = SimpleDocTemplate(
         buffer,
         pagesize=get_page_size(payload.page_size),
@@ -57,7 +56,9 @@ def generate_ebook_pdf(payload: EbookRequest, authorization: str = Header(defaul
     styles = getSampleStyleSheet()
     elements = []
 
-    # ===== CAPA =====
+    # ========================
+    # CAPA
+    # ========================
     title_style = ParagraphStyle(
         name="TitleStyle",
         parent=styles["Heading1"],
@@ -77,8 +78,7 @@ def generate_ebook_pdf(payload: EbookRequest, authorization: str = Header(defaul
         name="AuthorStyle",
         parent=styles["Normal"],
         fontSize=12,
-        spaceBefore=40,
-        textColor=colors.black
+        spaceBefore=40
     )
 
     elements.append(Spacer(1, 6*cm))
@@ -92,7 +92,9 @@ def generate_ebook_pdf(payload: EbookRequest, authorization: str = Header(defaul
 
     elements.append(PageBreak())
 
-    # ===== SUMÁRIO =====
+    # ========================
+    # SUMÁRIO
+    # ========================
     elements.append(Paragraph("Sumário", styles["Heading2"]))
     elements.append(Spacer(1, 0.5*cm))
 
@@ -106,10 +108,13 @@ def generate_ebook_pdf(payload: EbookRequest, authorization: str = Header(defaul
             spaceBefore=5
         )
     ]
+
     elements.append(toc)
     elements.append(PageBreak())
 
-    # ===== CAPÍTULOS =====
+    # ========================
+    # CAPÍTULOS
+    # ========================
     chapter_style = ParagraphStyle(
         name="ChapterTitle",
         parent=styles["Heading2"],
@@ -133,6 +138,9 @@ def generate_ebook_pdf(payload: EbookRequest, authorization: str = Header(defaul
         elements.append(Paragraph(ch.content.replace("\n", "<br/>"), body_style))
         elements.append(PageBreak())
 
+    # ========================
+    # NUMERAÇÃO DE PÁGINA
+    # ========================
     def add_page_number(canvas, doc):
         page_num = canvas.getPageNumber()
         text = f"{payload.title} — Página {page_num}"
