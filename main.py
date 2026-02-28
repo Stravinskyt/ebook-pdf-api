@@ -117,16 +117,11 @@ if payload.author:
 elements.append(Spacer(1, 0.6 * cm))
 elements.append(Paragraph(f"<font color='{LINE.hexval()}' size='10'>Versão editorial • PDF profissional</font>", styles["Normal"]))
 
-elements.append(PageBreak())
-    # ========================
-    # SUMÁRIO REAL
-    # ========================
+    elements.append(PageBreak())
 
-       # ========================
+    # ========================
     # SUMÁRIO
     # ========================
-        elements.append(PageBreak())
-
     elements.append(Paragraph("Sumário", styles["Heading2"]))
     elements.append(Spacer(1, 0.5 * cm))
 
